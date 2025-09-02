@@ -86,3 +86,59 @@ function renderPage(num) {
     });
   });
 }
+
+const annotationCanvas = document.getElementById("annotationLayer");
+const annotationCtx = annotationCanvas.getContext("2d");
+let drawing = false;
+let currentTool = null;
+
+// Resize canvas to match viewer
+function resizeAnnotationCanvas(width, height) {
+  annotationCanvas.width = width;
+  annotationCanvas.height = height;
+}
+
+// Drawing events
+annotationCanvas.addEventListener("mousedown", (e) => {
+  if (currentTool === "draw") {
+    drawing = true;
+    annotationCtx.beginPath();
+    annotationCtx.moveTo(e.offsetX, e.offsetY);
+  }
+});
+
+annotationCanvas.addEventListener("mousemove", (e) => {
+  if (drawing && currentTool === "draw") {
+    annotationCtx.lineTo(e.offsetX, e.offsetY);
+    annotationCtx.strokeStyle = "#ffcc00";
+    annotationCtx.lineWidth = 2;
+    annotationCtx.stroke();
+  }
+});
+
+annotationCanvas.addEventListener("mouseup", () => {
+  if (currentTool === "draw") {
+    drawing = false;
+  }
+});
+
+// Text tool
+annotationCanvas.addEventListener("click", (e) => {
+  if (currentTool === "text") {
+    const text = prompt("Enter text:");
+    if (text) {
+      annotationCtx.font = "16px Orbitron";
+      annotationCtx.fillStyle = "#00ccff";
+      annotationCtx.fillText(text, e.offsetX, e.offsetY);
+    }
+  }
+});
+
+// Tool button logic
+document.getElementById("drawBtn").addEventListener("click", () => {
+  currentTool = "draw";
+});
+
+document.getElementById("textBtn").addEventListener("click", () => {
+  currentTool = "text";
+});
