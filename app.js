@@ -1,44 +1,70 @@
+let pdfDoc = null;
+let currentPage = 1;
+let totalPages = 0;
+let pdfViewer = document.getElementById("pdfViewer");
+
 console.log("PDF Editor booting...");
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Ready to add PDF features.");
 
-  const input = document.getElementById("pdfInput");
-  const button = document.getElementById("loadPdfBtn");
-  const viewer = document.getElementById("pdfViewer");
+  document.getElementById("loadPdfBtn").addEventListener("click", () => {
+    const fileInput = document.getElementById("pdfInput");
+    const file = fileInput.files[0];
 
-  button.addEventListener("click", () => {
-    const file = input.files[0];
-    if (!file) {
-      alert("Please select a PDF file.");
-      return;
+    if (file && file.type === "application/pdf") {
+      const fileReader = new FileReader();
+      fileReader.onload = function () {
+        const typedarray = new Uint8Array(this.result);
+        loadPDF(typedarray);
+      };
+      fileReader.readAsArrayBuffer(file);
     }
+  });
 
-    const fileReader = new FileReader();
-    fileReader.onload = function () {
-      const typedarray = new Uint8Array(this.result);
+  document.getElementById("prevPage").addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPage(currentPage);
+    }
+  });
 
-      pdfjsLib.getDocument(typedarray).promise.then(pdf => {
-        viewer.innerHTML = ""; // Clear previous renders
-
-        pdf.getPage(1).then(page => {
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          const viewport = page.getViewport({ scale: 1.5 });
-
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-
-          page.render({
-            canvasContext: context,
-            viewport: viewport
-          });
-
-          viewer.appendChild(canvas);
-        });
-      });
-    };
-
-    fileReader.readAsArrayBuffer(file);
+  document.getElementById("nextPage").addEventListener("click", () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPage(currentPage);
+    }
   });
 });
+
+function loadPDF(data) {
+  pdfjsLib.getDocument({ data: data }).promise.then((pdf) => {
+    pdfDoc = pdf;
+    totalPages = pdf.numPages;
+    document.getElementById("totalPages").textContent = totalPages;
+    currentPage = 1;
+    renderPage(currentPage);
+  });
+}
+
+function renderPage(num) {
+  pdfDoc.getPage(num).then((page) => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    const viewport = page.getViewport({ scale: 1.5 });
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    const renderContext = {
+      canvasContext: context,
+      viewport: viewport,
+    };
+
+    page.render(renderContext).promise.then(() => {
+      pdfViewer.innerHTML = ""; // Clear previous
+      pdfViewer.appendChild(canvas);
+      document.getElementById("currentPage").textContent = num;
+    });
+  });
+}
