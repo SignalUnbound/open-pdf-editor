@@ -1,68 +1,22 @@
+
 body {
-  font-family: 'Orbitron', sans-serif;
+  font-family: sans-serif;
   background: #111;
-  color: #ccc;
-  margin: 0;
-  padding: 2rem;
-
-}
-
-h1 {
-  color: #ccc;
-}
-
-button {
-  background: #222;
   color: #eee;
-  border: 1px solid #555;
-  padding: 0.5rem 1rem;
-  margin-top: 1rem;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #333;
-}
-
-#pdfViewer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   padding: 2rem;
-}
-#mainContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-#pageJump {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-canvas {
-  max-width: 100%;
-  height: auto;
-}
-#editControls {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 1.5rem 0;
+  text-align: center;
 }
 
-#editControls button {
-  background: #111;
-  color: #ccc;
-  border: 1px solid #444;
-  padding: 0.5rem 1rem;
-  font-family: 'Orbitron', sans-serif;
-  cursor: pointer;
+#pdfArea {
+  margin-top: 2rem;
 }
 
-#editControls button:hover {
-  background: #222;
+.editable {
+  position: absolute;
+  background: transparent;
+  color: cyan;
+  font-family: monospace;
+  font-size: 14px;
+  border: none;
+  outline: none;
 }
