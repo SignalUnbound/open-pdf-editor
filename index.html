@@ -10,18 +10,20 @@
 </script>
 </head>
 <body>
+<div id="mainContent">
   <h1>Signal:Unbound PDF Editor</h1>
   <p>Select a PDF file to view or edit:</p>
-
+  
   <input type="file" id="pdfInput" accept="application/pdf">
   <br><br>
-
+  
   <button id="loadPdfBtn">Load PDF</button>
 
   <div id="navigation">
-  <button id="prevPage">Previous</button>
-  <span id="pageCounter">Page <span id="currentPage">1</span> of <span id="totalPages">?</span></span>
-  <button id="nextPage">Next</button>
+    <button id="prevPage">Previous</button>
+    <span id="pageCounter">Page <span id="currentPage">1</span> of <span id="totalPages">?</span></span>
+    <button id="nextPage">Next</button>
+  </div>
 </div>
   
   <div id="pdfViewer">
