@@ -2,18 +2,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Signal:Unbound — Real PDF Editor</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Signal:Unbound PDF Editor</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="main">
-    <h1>Signal:Unbound PDF Editor</h1>
-    <p>Select a PDF to edit and download:</p>
-    <input type="file" id="pdfInput" accept="application/pdf" />
-    <button id="editPdfBtn">Edit and Download</button>
-    <p id="status"></p>
-  </div>
+  <h1>Signal:Unbound PDF Editor</h1>
+  <p>Select a PDF to edit and save:</p>
+  <input type="file" id="pdfInput" accept="application/pdf">
+  <button id="saveBtn">💾 Save Edited PDF</button>
+  <div id="pdfArea"></div>
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <script src="editor.js"></script>
 </body>
