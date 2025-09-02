@@ -1,22 +1,13 @@
-
 body {
-  font-family: sans-serif;
+  font-family: 'Orbitron', sans-serif;
   background: #111;
   color: #eee;
-  padding: 2rem;
   text-align: center;
+  padding: 2rem;
 }
 
-#pdfArea {
+canvas {
   margin-top: 2rem;
-}
-
-.editable {
-  position: absolute;
-  background: transparent;
-  color: cyan;
-  font-family: monospace;
-  font-size: 14px;
-  border: none;
-  outline: none;
+  border: 1px solid #555;
+  max-width: 90%;
 }
