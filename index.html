@@ -1,21 +1,20 @@
-DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Signal:Unbound PDF Editor</title>
+  <title>Signal:Unbound — Real PDF Editor</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Signal:Unbound PDF Editor</h1>
-
-  <input type="file" id="pdfInput" accept="application/pdf" />
-  <button id="loadPdfBtn">Load PDF</button>
-  <button id="addTextBtn">Add Text</button>
-  <button id="savePdfBtn">Save PDF</button>
-
-  <canvas id="pdfCanvas"></canvas>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-  <script type="module" src="editor.js"></script>
+  <div id="main">
+    <h1>Signal:Unbound PDF Editor</h1>
+    <p>Select a PDF to edit and download:</p>
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <button id="editPdfBtn">Edit and Download</button>
+    <p id="status"></p>
+  </div>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="editor.js"></script>
 </body>
 </html>
