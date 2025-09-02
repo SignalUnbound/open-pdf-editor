@@ -1,7 +1,7 @@
 body {
   font-family: sans-serif;
   background: #111;
-  color: #eee;
+  color: #ccc;
   margin: 0;
   padding: 2rem;
   display: flex;
@@ -12,12 +12,12 @@ body {
 }
 
 h1 {
-  color: #7df9ff;
+  color: #ccc;
 }
 
 button {
   background: #222;
-  color: #fff;
+  color: #eee;
   border: 1px solid #555;
   padding: 0.5rem 1rem;
   margin-top: 1rem;
@@ -33,4 +33,5 @@ button:hover {
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  background: #000;
 }
