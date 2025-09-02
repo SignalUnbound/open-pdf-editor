@@ -77,11 +77,43 @@ function renderPage(num) {
       canvasContext: context,
       viewport: viewport,
     };
+    page.render(renderContext).promise.then(() => {
+      console.log(`Page ${num} rendered.`);
+      pdfViewer.innerHTML = "";
+      pdfViewer.appendChild(canvas);
+      document.getElementById("currentPage").textContent = num;
+
+      // ✅ These two are essential:
+      resizeAnnotationCanvas(canvas.width, canvas.height);
+      loadAnnotations();
+    });
+  });
+}
 
     page.render(renderContext).promise.then(() => {
       console.log(`Page ${num} rendered.`); // ✅ new log
       pdfViewer.innerHTML = ""; // Clear previous
-      pdfViewer.appendChild(canvas);
+
+// Wrap PDF canvas and annotation layer together
+const wrapper = document.createElement("div");
+wrapper.style.position = "relative";
+wrapper.style.display = "inline-block";
+
+// Style annotationCanvas
+annotationCanvas.width = canvas.width;
+annotationCanvas.height = canvas.height;
+annotationCanvas.style.position = "absolute";
+annotationCanvas.style.left = 0;
+annotationCanvas.style.top = 0;
+annotationCanvas.style.pointerEvents = "auto"; // let tools work
+
+// Append both
+wrapper.appendChild(canvas);
+wrapper.appendChild(annotationCanvas);
+pdfViewer.appendChild(wrapper);
+
+// Update page number display
+document.getElementById("currentPage").textContent = num;
       document.getElementById("currentPage").textContent = num;
     });
   });
@@ -147,3 +179,20 @@ document.getElementById("saveBtn").addEventListener("click", () => {
   alert("Save button clicked"); // test this first!
   saveAnnotations();
 });
+function saveAnnotations() {
+  const dataURL = annotationCanvas.toDataURL("image/png");
+  localStorage.setItem(`pdf-annotations-page-${currentPage}`, dataURL);
+  alert("Annotations saved.");
+}
+
+function loadAnnotations() {
+  const dataURL = localStorage.getItem(`pdf-annotations-page-${currentPage}`);
+  if (dataURL) {
+    const img = new Image();
+    img.onload = () => {
+      annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+      annotationCtx.drawImage(img, 0, 0);
+    };
+    img.src = dataURL;
+  }
+}
