@@ -80,31 +80,29 @@ function renderPage(num) {
 
     page.render(renderContext).promise.then(() => {
       console.log(`Page ${num} rendered.`);
-
-      // Clear the viewer before rendering new page
       pdfViewer.innerHTML = "";
 
-      // Create a wrapper to stack PDF and annotation canvas
+      // Wrapper for PDF canvas + annotations
       const wrapper = document.createElement("div");
       wrapper.style.position = "relative";
       wrapper.style.display = "inline-block";
 
-      // Resize and restyle the global annotation canvas
-      resizeAnnotationCanvas(canvas.width, canvas.height);
+      // Create a fresh annotation canvas PER PAGE
+      annotationCanvas.width = canvas.width;
+      annotationCanvas.height = canvas.height;
       annotationCanvas.style.position = "absolute";
-      annotationCanvas.style.left = 0;
-      annotationCanvas.style.top = 0;
+      annotationCanvas.style.left = "0";
+      annotationCanvas.style.top = "0";
       annotationCanvas.style.pointerEvents = "auto";
 
-      // Add both canvases to the wrapper
+      // Stack PDF and annotation canvases
       wrapper.appendChild(canvas);
       wrapper.appendChild(annotationCanvas);
       pdfViewer.appendChild(wrapper);
 
-      // Update page number display
+      // Update counter and load saved annotations
       document.getElementById("currentPage").textContent = num;
-
-      // Load saved annotations
+      resizeAnnotationCanvas(canvas.width, canvas.height);
       loadAnnotations();
     });
   });
