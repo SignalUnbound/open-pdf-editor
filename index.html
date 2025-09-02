@@ -29,9 +29,16 @@
 <input type="number" id="pageJumpInput" min="1" placeholder="Go to page..." />
 <button id="jumpPageBtn">Jump</button>
 </div>
-  
+
+ <div id="editControls">
+  <button id="drawBtn">✏️ Draw</button>
+  <button id="textBtn">🅰️ Add Text</button>
+  <button id="saveBtn">💾 Save PDF</button>
+</div>
+ 
   <div id="pdfViewer">
     <!-- PDF will render here -->
+   <canvas id="annotationLayer"></canvas>
   </div>
 
   <script src="./app.js"></script>
