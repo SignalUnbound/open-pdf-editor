@@ -47,3 +47,22 @@ canvas {
   max-width: 100%;
   height: auto;
 }
+#editControls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+#editControls button {
+  background: #111;
+  color: #ccc;
+  border: 1px solid #444;
+  padding: 0.5rem 1rem;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+}
+
+#editControls button:hover {
+  background: #222;
+}
