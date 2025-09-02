@@ -4,6 +4,9 @@ body {
   color: #eee;
   margin: 0;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 h1 {
@@ -21,4 +24,11 @@ button {
 
 button:hover {
   background: #333;
+}
+
+#pdfViewer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
 }
