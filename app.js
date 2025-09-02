@@ -84,8 +84,8 @@ function renderPage(num) {
       document.getElementById("currentPage").textContent = num;
 
       // ✅ These two are essential:
-    // resizeAnnotationCanvas(canvas.width, canvas.height);
-     loadAnnotations();
+     // resizeAnnotationCanvas(canvas.width, canvas.height);
+    // loadAnnotations();
     });
   });
 }
