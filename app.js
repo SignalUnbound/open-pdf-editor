@@ -41,13 +41,18 @@ function loadPDF(data) {
   pdfjsLib.getDocument({ data: data }).promise.then((pdf) => {
     pdfDoc = pdf;
     totalPages = pdf.numPages;
+    console.log(`PDF loaded with ${totalPages} pages.`); // ✅ add this
+
     document.getElementById("totalPages").textContent = totalPages;
     currentPage = 1;
     renderPage(currentPage);
+  }).catch(err => {
+    console.error("Error loading PDF:", err); // ✅ helpful logging
   });
 }
 
 function renderPage(num) {
+  console.log(`Rendering page ${num}`); // ✅ new log line
   pdfDoc.getPage(num).then((page) => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -62,6 +67,7 @@ function renderPage(num) {
     };
 
     page.render(renderContext).promise.then(() => {
+      console.log(`Page ${num} rendered.`); // ✅ new log
       pdfViewer.innerHTML = ""; // Clear previous
       pdfViewer.appendChild(canvas);
       document.getElementById("currentPage").textContent = num;
