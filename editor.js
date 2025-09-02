@@ -1,24 +1,21 @@
-import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.mjs";
+DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Signal:Unbound PDF Editor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Signal:Unbound PDF Editor</h1>
 
-// Setup PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+  <input type="file" id="pdfInput" accept="application/pdf" />
+  <button id="loadPdfBtn">Load PDF</button>
+  <button id="addTextBtn">Add Text</button>
+  <button id="savePdfBtn">Save PDF</button>
 
-async function renderPage(pdfData, pageNumber) {
-  const loadingTask = pdfjsLib.getDocument({ data: pdfData });
-  const pdf = await loadingTask.promise;
-  const page = await pdf.getPage(pageNumber);
+  <canvas id="pdfCanvas"></canvas>
 
-  const viewport = page.getViewport({ scale: 1.5 });
-  const canvas = document.getElementById("pdfCanvas");
-  const context = canvas.getContext("2d");
-
-  canvas.height = viewport.height;
-  canvas.width = viewport.width;
-
-  const renderContext = {
-    canvasContext: context,
-    viewport: viewport,
-  };
-
-  await page.render(renderContext).promise;
-}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script type="module" src="editor.js"></script>
+</body>
+</html>
