@@ -142,3 +142,8 @@ document.getElementById("drawBtn").addEventListener("click", () => {
 document.getElementById("textBtn").addEventListener("click", () => {
   currentTool = "text";
 });
+
+document.getElementById("saveBtn").addEventListener("click", () => {
+  alert("Save button clicked"); // test this first!
+  saveAnnotations();
+});
