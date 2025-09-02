@@ -64,7 +64,7 @@ function loadPDF(data) {
 }
 
 function renderPage(num) {
-  console.log(`Rendering page ${num}`); // ✅ new log line
+  console.log(`Rendering page ${num}`);
   pdfDoc.getPage(num).then((page) => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -77,44 +77,35 @@ function renderPage(num) {
       canvasContext: context,
       viewport: viewport,
     };
+
     page.render(renderContext).promise.then(() => {
       console.log(`Page ${num} rendered.`);
+
+      // Clear existing content
       pdfViewer.innerHTML = "";
-      pdfViewer.appendChild(canvas);
+
+      // Wrap PDF canvas and annotation canvas together
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "relative";
+      wrapper.style.display = "inline-block";
+
+      // Resize and style annotation canvas
+      resizeAnnotationCanvas(canvas.width, canvas.height);
+      annotationCanvas.style.position = "absolute";
+      annotationCanvas.style.left = 0;
+      annotationCanvas.style.top = 0;
+      annotationCanvas.style.pointerEvents = "auto";
+
+      // Add both layers to wrapper
+      wrapper.appendChild(canvas);
+      wrapper.appendChild(annotationCanvas);
+      pdfViewer.appendChild(wrapper);
+
+      // Update page number display
       document.getElementById("currentPage").textContent = num;
 
-      // ✅ These two are essential:
-     // resizeAnnotationCanvas(canvas.width, canvas.height);
-    // loadAnnotations();
-    });
-  });
-}
-
-    page.render(renderContext).promise.then(() => {
-      console.log(`Page ${num} rendered.`); // ✅ new log
-      pdfViewer.innerHTML = ""; // Clear previous
-
-// Wrap PDF canvas and annotation layer together
-const wrapper = document.createElement("div");
-wrapper.style.position = "relative";
-wrapper.style.display = "inline-block";
-
-// Style annotationCanvas
-annotationCanvas.width = canvas.width;
-annotationCanvas.height = canvas.height;
-annotationCanvas.style.position = "absolute";
-annotationCanvas.style.left = 0;
-annotationCanvas.style.top = 0;
-annotationCanvas.style.pointerEvents = "auto"; // let tools work
-
-// Append both
-wrapper.appendChild(canvas);
-wrapper.appendChild(annotationCanvas);
-pdfViewer.appendChild(wrapper);
-
-// Update page number display
-document.getElementById("currentPage").textContent = num;
-      document.getElementById("currentPage").textContent = num;
+      // Load annotations
+      loadAnnotations();
     });
   });
 }
