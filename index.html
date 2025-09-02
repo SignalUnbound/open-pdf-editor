@@ -6,8 +6,17 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <h1>🜂 Signal:Unbound PDF Editor</h1>
-  <p>This is where it begins. UI coming soon.</p>
+  <h1>Signal:Unbound PDF Editor</h1>
+  <p>Select a PDF file to view or edit:</p>
+
+  <input type="file" id="pdfInput" accept="application/pdf">
+  <br><br>
+
+  <button id="loadPdfBtn">Load PDF</button>
+
+  <div id="pdfViewer">
+    <!-- PDF will render here -->
+  </div>
 
   <script src="./app.js"></script>
 </body>
