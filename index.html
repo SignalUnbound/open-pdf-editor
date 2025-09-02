@@ -11,36 +11,20 @@
 </script>
 </head>
 <body>
-<div id="mainContent">
-  <h1>Signal:Unbound PDF Editor</h1>
+  <h1>Signal:Unbound PDF Editor (Embedded Edits)</h1>
   <p>Select a PDF file to view or edit:</p>
-  
+
   <input type="file" id="pdfInput" accept="application/pdf">
   <br><br>
-  
-  <button id="loadPdfBtn">Load PDF</button>
 
-  <div id="navigation">
-    <button id="prevPage">Previous</button>
-    <span id="pageCounter">Page <span id="currentPage">1</span> of <span id="totalPages">?</span></span>
-    <button id="nextPage">Next</button>
-  </div>
-  <br><br>
-<input type="number" id="pageJumpInput" min="1" placeholder="Go to page..." />
-<button id="jumpPageBtn">Jump</button>
-</div>
+  <button id="editPdfBtn">Load PDF</button>
+  <button id="addTextBtn">🅰️ Add Text</button>
+  <button id="savePdfBtn">💾 Save PDF</button>
 
- <div id="editControls">
-  <button id="drawBtn">✏️ Draw</button>
-  <button id="textBtn">🅰️ Add Text</button>
-  <button id="saveBtn">💾 Save PDF</button>
-</div>
- 
-  <div id="pdfViewer">
-    <!-- PDF will render here -->
-   <canvas id="annotationLayer"></canvas>
-  </div>
+  <!-- If you want to show a live render in future, you can add a viewer -->
+  <div id="pdfPreview" style="margin-top: 2rem;"></div>
 
-  <script src="./app.js"></script>
+  <!-- Use module so Skypack imports work -->
+  <script type="module" src="./editor.js"></script>
 </body>
 </html>
