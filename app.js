@@ -37,6 +37,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+document.getElementById("jumpPageBtn").addEventListener("click", () => {
+  const input = document.getElementById("pageJumpInput");
+  const pageNum = parseInt(input.value);
+
+  if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+    currentPage = pageNum;
+    renderPage(currentPage);
+  } else {
+    alert("Invalid page number.");
+  }
+});
+
 function loadPDF(data) {
   pdfjsLib.getDocument({ data: data }).promise.then((pdf) => {
     pdfDoc = pdf;
