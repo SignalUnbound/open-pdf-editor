@@ -1,67 +1,60 @@
 let pdfDoc = null;
-let pdfBytes = null;
+let currentPage = null;
 let canvas = document.getElementById("pdfCanvas");
 let ctx = canvas.getContext("2d");
-let currentPdfDoc = null;
+let fileBytes = null;
 
-document.getElementById("loadPdfBtn").addEventListener("click", async () => {
-  const input = document.getElementById("pdfInput");
-  const file = input.files[0];
-  if (!file) return alert("No file selected");
-
-  const arrayBuffer = await file.arrayBuffer();
-  pdfBytes = arrayBuffer;
-  pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
-  renderFirstPage(pdfDoc);
+document.getElementById("pdfInput").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    fileBytes = await file.arrayBuffer();
+    pdfDoc = await PDFLib.PDFDocument.load(fileBytes);
+    renderPage(0); // load first page
+  }
 });
 
-async function renderFirstPage(pdfDoc) {
-  const page = pdfDoc.getPages()[0];
-  const { width, height } = page.getSize();
+async function renderPage(pageIndex) {
+  const page = pdfDoc.getPage(pageIndex);
+  currentPage = page;
 
-  canvas.width = width;
-  canvas.height = height;
+  const viewport = {
+    width: page.getWidth(),
+    height: page.getHeight()
+  };
 
-  // Draw white background
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, width, height);
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
 
-  // Render placeholder message on canvas
-  ctx.fillStyle = "#999999";
-  ctx.font = "20px sans-serif";
-  ctx.fillText("PDF loaded. Changes will apply to saved file.", 40, 40);
+  // Clear canvas and render blank background
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#000";
+  ctx.fillText("Page loaded. Click 'Add Text' to write.", 20, 40);
 }
 
-document.getElementById("insertTextBtn").addEventListener("click", async () => {
-  if (!pdfDoc) return alert("No PDF loaded.");
-  
-  const inputText = document.getElementById("textInput").value;
-  if (!inputText) return alert("Please enter some text.");
+document.getElementById("addTextBtn").addEventListener("click", async () => {
+  if (!currentPage) return alert("Load a PDF first!");
 
-  const pages = pdfDoc.getPages();
-  const firstPage = pages[0];
+  const text = prompt("Enter text:");
+  if (!text) return;
 
-  const { width, height } = firstPage.getSize();
-
-  firstPage.drawText(inputText, {
+  currentPage.drawText(text, {
     x: 50,
-    y: height - 100,
-    size: 18,
-    color: PDFLib.rgb(0.2, 0.6, 1),
-    font: await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica),
+    y: 500,
+    size: 24,
+    color: PDFLib.rgb(0, 1, 1),
   });
 
-  renderFirstPage(pdfDoc);
-  alert("Text added to PDF! Click 'Download' to save.");
+  renderPage(0); // refresh preview
 });
 
-document.getElementById("downloadBtn").addEventListener("click", async () => {
+document.getElementById("saveBtn").addEventListener("click", async () => {
   if (!pdfDoc) return alert("No PDF loaded.");
 
-  const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
-  
-  const a = document.createElement("a");
-  a.href = pdfDataUri;
-  a.download = "edited.pdf";
-  a.click();
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "edited.pdf";
+  link.click();
 });
