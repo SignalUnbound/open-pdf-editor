@@ -1,32 +1,21 @@
-<!DOCTYPE html>
+DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
-  <title>Open PDF Editor</title>
-  <link rel="stylesheet" href="./style.css">
- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-<script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-</script>
+  <meta charset="UTF-8" />
+  <title>Signal:Unbound PDF Editor</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Signal:Unbound PDF Editor (Embedded Edits)</h1>
-  <p>Select a PDF file to view or edit:</p>
+  <h1>Signal:Unbound PDF Editor</h1>
 
-  <input type="file" id="pdfInput" accept="application/pdf">
-  <br><br>
+  <input type="file" id="pdfInput" accept="application/pdf" />
+  <button id="loadPdfBtn">Load PDF</button>
+  <button id="addTextBtn">Add Text</button>
+  <button id="savePdfBtn">Save PDF</button>
 
-  <button id="editPdfBtn">Load PDF</button>
-  <button id="addTextBtn">🅰️ Add Text</button>
-  <button id="savePdfBtn">💾 Save PDF</button>
+  <canvas id="pdfCanvas"></canvas>
 
- <canvas id="pdfCanvas"></canvas>
- 
-  <!-- If you want to show a live render in future, you can add a viewer -->
-  <div id="pdfPreview" style="margin-top: 2rem;"></div>
-
-  <!-- Use module so Skypack imports work -->
-  <script type="module" src="./editor.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script type="module" src="editor.js"></script>
 </body>
 </html>
