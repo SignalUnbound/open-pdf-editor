@@ -1,21 +1,40 @@
-DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Signal:Unbound PDF Editor</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>Signal:Unbound PDF Editor</h1>
+document.getElementById("editPdfBtn").addEventListener("click", async () => {
+  const input = document.getElementById("pdfInput");
+  const status = document.getElementById("status");
+  const file = input.files[0];
 
-  <input type="file" id="pdfInput" accept="application/pdf" />
-  <button id="loadPdfBtn">Load PDF</button>
-  <button id="addTextBtn">Add Text</button>
-  <button id="savePdfBtn">Save PDF</button>
+  if (!file || file.type !== "application/pdf") {
+    status.textContent = "Please select a valid PDF file.";
+    return;
+  }
 
-  <canvas id="pdfCanvas"></canvas>
+  status.textContent = "Loading PDF...";
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-  <script type="module" src="editor.js"></script>
-</body>
-</html>
+  const arrayBuffer = await file.arrayBuffer();
+  const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+  const pages = pdfDoc.getPages();
+  const firstPage = pages[0];
+
+  // Add embedded text
+  const { width, height } = firstPage.getSize();
+  firstPage.drawText("Edited with Signal:Unbound", {
+    x: 50,
+    y: height - 50,
+    size: 18,
+    color: PDFLib.rgb(0, 0.8, 1),
+  });
+
+  const editedPdfBytes = await pdfDoc.save();
+
+  // Create downloadable link
+  const blob = new Blob([editedPdfBytes], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "edited.pdf";
+  a.click();
+
+  URL.revokeObjectURL(url);
+  status.textContent = "PDF downloaded with new text.";
+});
