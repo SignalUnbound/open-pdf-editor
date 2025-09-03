@@ -227,10 +227,8 @@
       if (!originalPdfDoc) return;
 
       const page = originalPdfDoc.getPages()[currentPage - 1];
-      const canvasBox = canvas.getBoundingClientRect();
-
-      const page = originalPdfDoc.getPages()[currentPage - 1];
 const { width: pdfWidth, height: pdfHeight } = page.getSize();
+const canvasBox = canvas.getBoundingClientRect();
 const canvasBox = canvas.getBoundingClientRect();
 
 for (const div of overlayTextElements) {
