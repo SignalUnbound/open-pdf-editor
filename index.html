@@ -224,47 +224,43 @@
     };
 
     document.getElementById('save-pdf').onclick = async () => {
-      if (!originalPdfDoc) return;
+  if (!originalPdfDoc) return;
 
-      const page = originalPdfDoc.getPages()[currentPage - 1];
-const { width: pdfWidth, height: pdfHeight } = page.getSize();
-const canvasBox = canvas.getBoundingClientRect();
-const canvasBox = canvas.getBoundingClientRect();
+  const page = originalPdfDoc.getPages()[currentPage - 1];
+  const { width: pdfWidth, height: pdfHeight } = page.getSize();
+  const canvasBox = canvas.getBoundingClientRect();
 
-for (const div of overlayTextElements) {
-  const divBox = div.getBoundingClientRect();
-  const text = div.textContent;
-  const color = window.getComputedStyle(div).color;
+  for (const div of overlayTextElements) {
+    const divBox = div.getBoundingClientRect();
+    const text = div.textContent;
+    const color = window.getComputedStyle(div).color;
 
-  // Convert color
-  const [r, g, b] = color.match(/\d+/g).map(n => parseInt(n) / 255);
+    const [r, g, b] = color.match(/\d+/g).map(n => parseInt(n) / 255);
 
-  // Get canvas position
-  const offsetX = divBox.left - canvasBox.left;
-  const offsetY = divBox.top - canvasBox.top;
+    const offsetX = divBox.left - canvasBox.left;
+    const offsetY = divBox.top - canvasBox.top;
 
-  // Calculate scaling
-  const scaleX = pdfWidth / canvas.width;
-  const scaleY = pdfHeight / canvas.height;
+    const scaleX = pdfWidth / canvas.width;
+    const scaleY = pdfHeight / canvas.height;
 
-  // Convert to PDF coordinates
-  const x = offsetX * scaleX;
-  const y = pdfHeight - (offsetY * scaleY) - 18; // adjust for baseline
+    const x = offsetX * scaleX;
+    const y = pdfHeight - (offsetY * scaleY) - 18;
 
-  page.drawText(text, {
-    x,
-    y,
-    size: 18,
-    color: rgb(r, g, b),
-  });
-}
+    page.drawText(text, {
+      x,
+      y,
+      size: 18,
+      color: rgb(r, g, b),
+    });
+  }
 
-      const modifiedBytes = await originalPdfDoc.save();
-      const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'edited.pdf';
-      link.click();
+  const modifiedBytes = await originalPdfDoc.save();
+  const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'edited.pdf';
+  link.click();
+};
     };
   </script>
 </body>
