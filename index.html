@@ -16,13 +16,6 @@
       font-size: 1.5em;
       margin-bottom: 1em;
     }
-    #pdf-canvas {
-      border: 1px solid #444;
-      width: 100%;
-      max-width: 100%;
-      height: auto;
-      margin: 1em 0;
-    }
     input, button {
       margin: 0.5em;
       padding: 0.5em 1em;
@@ -50,6 +43,12 @@
       position: relative;
       display: inline-block;
     }
+    #pdf-canvas {
+      border: 1px solid #444;
+      width: 100%;
+      height: auto;
+      margin: 1em 0;
+    }
   </style>
 </head>
 <body>
@@ -76,28 +75,26 @@
     <canvas id="pdf-canvas"></canvas>
   </div>
 
-  <!-- pdf.js -->
+  <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <!-- pdf-lib -->
+  <!-- PDF-lib -->
   <script type="module">
     import { PDFDocument, rgb } from 'https://cdn.skypack.dev/pdf-lib';
 
-    let pdfDoc = null;
-    let pdfBytes = null;
     let currentPage = 1;
     let totalPages = 0;
     let renderedPages = [];
     let originalPdfDoc = null;
 
-    const fileInput = document.getElementById('file-input');
     const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
+    const fileInput = document.getElementById('file-input');
     const pageInfo = document.getElementById('page-info');
     const pageNumberInput = document.getElementById('page-number');
     const canvasContainer = document.getElementById('canvas-container');
     const overlayTextElements = [];
 
-    const renderPage = async (num) => {
+    async function renderPage(num) {
       const page = await renderedPages[num - 1];
       const viewport = page.getViewport({ scale: 1.5 });
       canvas.width = viewport.width;
@@ -109,6 +106,27 @@
       }).promise;
 
       pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    }
+
+    fileInput.onchange = async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const pdfBytes = await file.arrayBuffer();
+      originalPdfDoc = await PDFDocument.load(pdfBytes);
+
+      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+      const pdf = await loadingTask.promise;
+
+      totalPages = pdf.numPages;
+      renderedPages = [];
+
+      for (let i = 1; i <= totalPages; i++) {
+        renderedPages.push(await pdf.getPage(i));
+      }
+
+      currentPage = 1;
+      renderPage(currentPage);
     };
 
     document.getElementById('prev-page').onclick = () => {
@@ -131,27 +149,6 @@
         currentPage = pageNum;
         renderPage(currentPage);
       }
-    };
-
-    fileInput.onchange = async () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      pdfBytes = await file.arrayBuffer();
-
-      originalPdfDoc = await PDFDocument.load(pdfBytes);
-
-      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
-      const pdf = await loadingTask.promise;
-
-      totalPages = pdf.numPages;
-      renderedPages = [];
-
-      for (let i = 1; i <= totalPages; i++) {
-        renderedPages.push(await pdf.getPage(i));
-      }
-
-      currentPage = 1;
-      renderPage(currentPage);
     };
 
     function createDraggableText(input, color = "#ff4444") {
@@ -187,25 +184,24 @@
       }
 
       function drag(e) {
-  if (!isDragging) return;
-  const pageX = e.touches ? e.touches[0].pageX : e.pageX;
-  const pageY = e.touches ? e.touches[0].pageY : e.pageY;
+        if (!isDragging) return;
+        const pageX = e.touches ? e.touches[0].pageX : e.pageX;
+        const pageY = e.touches ? e.touches[0].pageY : e.pageY;
 
-  const left = pageX - offsetX - canvasContainer.offsetLeft;
-  const top = pageY - offsetY - canvasContainer.offsetTop;
+        const left = pageX - offsetX - canvasContainer.offsetLeft;
+        const top = pageY - offsetY - canvasContainer.offsetTop;
 
-  // Constrain to canvas
-  const canvasWidth = canvas.offsetWidth;
-  const canvasHeight = canvas.offsetHeight;
-  const textWidth = div.offsetWidth;
-  const textHeight = div.offsetHeight;
+        const canvasWidth = canvas.offsetWidth;
+        const canvasHeight = canvas.offsetHeight;
+        const textWidth = div.offsetWidth;
+        const textHeight = div.offsetHeight;
 
-  const clampedLeft = Math.max(0, Math.min(left, canvasWidth - textWidth));
-  const clampedTop = Math.max(0, Math.min(top, canvasHeight - textHeight));
+        const clampedLeft = Math.max(0, Math.min(left, canvasWidth - textWidth));
+        const clampedTop = Math.max(0, Math.min(top, canvasHeight - textHeight));
 
-  div.style.left = `${clampedLeft}px`;
-  div.style.top = `${clampedTop}px`;
-}
+        div.style.left = `${clampedLeft}px`;
+        div.style.top = `${clampedTop}px`;
+      }
 
       function stopDrag() {
         isDragging = false;
@@ -224,43 +220,42 @@
     };
 
     document.getElementById('save-pdf').onclick = async () => {
-  if (!originalPdfDoc) return;
+      if (!originalPdfDoc) return;
 
-  const page = originalPdfDoc.getPages()[currentPage - 1];
-  const { width: pdfWidth, height: pdfHeight } = page.getSize();
-  const canvasBox = canvas.getBoundingClientRect();
+      const page = originalPdfDoc.getPages()[currentPage - 1];
+      const { width: pdfWidth, height: pdfHeight } = page.getSize();
+      const canvasBox = canvas.getBoundingClientRect();
 
-  for (const div of overlayTextElements) {
-    const divBox = div.getBoundingClientRect();
-    const text = div.textContent;
-    const color = window.getComputedStyle(div).color;
+      for (const div of overlayTextElements) {
+        const divBox = div.getBoundingClientRect();
+        const text = div.textContent;
+        const color = window.getComputedStyle(div).color;
 
-    const [r, g, b] = color.match(/\d+/g).map(n => parseInt(n) / 255);
+        const [r, g, b] = color.match(/\d+/g).map(n => parseInt(n) / 255);
 
-    const offsetX = divBox.left - canvasBox.left;
-    const offsetY = divBox.top - canvasBox.top;
+        const offsetX = divBox.left - canvasBox.left;
+        const offsetY = divBox.top - canvasBox.top;
 
-    const scaleX = pdfWidth / canvas.width;
-    const scaleY = pdfHeight / canvas.height;
+        const scaleX = pdfWidth / canvas.width;
+        const scaleY = pdfHeight / canvas.height;
 
-    const x = offsetX * scaleX;
-    const y = pdfHeight - (offsetY * scaleY) - 18;
+        const x = offsetX * scaleX;
+        const y = pdfHeight - (offsetY * scaleY) - 18;
 
-    page.drawText(text, {
-      x,
-      y,
-      size: 18,
-      color: rgb(r, g, b),
-    });
-  }
+        page.drawText(text, {
+          x,
+          y,
+          size: 18,
+          color: rgb(r, g, b),
+        });
+      }
 
-  const modifiedBytes = await originalPdfDoc.save();
-  const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'edited.pdf';
-  link.click();
-};
+      const modifiedBytes = await originalPdfDoc.save();
+      const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'edited.pdf';
+      link.click();
     };
   </script>
 </body>
