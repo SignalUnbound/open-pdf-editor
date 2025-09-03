@@ -2,18 +2,167 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Signal:Unbound PDF Editor</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 1em;
+    }
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 1em;
+    }
+    #pdf-canvas {
+      border: 1px solid #444;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      margin: 1em 0;
+    }
+    input, button {
+      margin: 0.5em;
+      padding: 0.5em 1em;
+      border-radius: 5px;
+      border: none;
+      font-size: 1em;
+    }
+    button {
+      background-color: #222;
+      color: #eee;
+      border: 1px solid #555;
+    }
+    button:hover {
+      background-color: #333;
+    }
+  </style>
 </head>
 <body>
-   <h1>Signal:Unbound PDF Editor</h1>
-  <input type="file" id="pdfInput" accept="application/pdf" />
-  <button id="addTextBtn">🅰️ Add Text</button>
-  <button id="saveBtn">💾 Save PDF</button>
-  <canvas id="pdfCanvas"></canvas>
+  <h1>Signal:Unbound PDF Editor</h1>
 
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <script src="https://unpkg.com/pdfjs-dist/build/pdf.min.js"></script> <!-- ⬅️ Add this line -->
-  <script src="editor.js"></script>
+  <input type="file" id="file-input" accept="application/pdf">
+  <br>
+  <button id="prev-page">⬅️ Prev</button>
+  <span id="page-info">Page 1</span>
+  <button id="next-page">Next ➡️</button>
+  <br>
+  <input type="number" id="page-number" min="1" style="width: 60px;">
+  <button id="jump-page">Jump</button>
+  <br>
+  <button id="add-text">✏️ Add Text</button>
+  <button id="save-pdf">💾 Save PDF</button>
+
+  <canvas id="pdf-canvas"></canvas>
+
+  <!-- pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <!-- pdf-lib -->
+  <script type="module">
+    import { PDFDocument, rgb, StandardFonts } from 'https://cdn.skypack.dev/pdf-lib';
+
+    let pdfDoc = null;
+    let pdfBytes = null;
+    let currentPage = 1;
+    let totalPages = 0;
+    let renderedPages = [];
+    let originalPdfDoc = null;
+
+    const fileInput = document.getElementById('file-input');
+    const canvas = document.getElementById('pdf-canvas');
+    const ctx = canvas.getContext('2d');
+    const pageInfo = document.getElementById('page-info');
+    const pageNumberInput = document.getElementById('page-number');
+
+    const renderPage = async (num) => {
+      const page = await renderedPages[num - 1];
+      const viewport = page.getViewport({ scale: 1.5 });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({
+        canvasContext: ctx,
+        viewport: viewport
+      }).promise;
+
+      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    };
+
+    document.getElementById('prev-page').onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage(currentPage);
+      }
+    };
+
+    document.getElementById('next-page').onclick = () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPage(currentPage);
+      }
+    };
+
+    document.getElementById('jump-page').onclick = () => {
+      const pageNum = parseInt(pageNumberInput.value);
+      if (pageNum >= 1 && pageNum <= totalPages) {
+        currentPage = pageNum;
+        renderPage(currentPage);
+      }
+    };
+
+    fileInput.onchange = async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      pdfBytes = await file.arrayBuffer();
+
+      // Load for editing
+      originalPdfDoc = await PDFDocument.load(pdfBytes);
+
+      // Load for rendering
+      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+      const pdf = await loadingTask.promise;
+
+      totalPages = pdf.numPages;
+      renderedPages = [];
+
+      for (let i = 1; i <= totalPages; i++) {
+        renderedPages.push(await pdf.getPage(i));
+      }
+
+      currentPage = 1;
+      renderPage(currentPage);
+    };
+
+    document.getElementById('add-text').onclick = async () => {
+      const text = prompt('Enter text:');
+      if (!text) return;
+
+      const page = originalPdfDoc.getPages()[currentPage - 1];
+      const { width, height } = page.getSize();
+
+      // Default position near top-left (can adjust later)
+      page.drawText(text, {
+        x: 50,
+        y: height - 100,
+        size: 18,
+        color: rgb(1, 0.2, 0.2),
+      });
+
+      alert('Text added to PDF (not visible on screen, but will be in saved file)');
+    };
+
+    document.getElementById('save-pdf').onclick = async () => {
+      if (!originalPdfDoc) return;
+
+      const modifiedBytes = await originalPdfDoc.save();
+      const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'edited.pdf';
+      link.click();
+    };
+  </script>
 </body>
 </html>
