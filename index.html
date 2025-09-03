@@ -187,14 +187,25 @@
       }
 
       function drag(e) {
-        if (!isDragging) return;
-        const pageX = e.touches ? e.touches[0].pageX : e.pageX;
-        const pageY = e.touches ? e.touches[0].pageY : e.pageY;
-        const left = pageX - offsetX - canvasContainer.offsetLeft;
-        const top = pageY - offsetY - canvasContainer.offsetTop;
-        div.style.left = `${left}px`;
-        div.style.top = `${top}px`;
-      }
+  if (!isDragging) return;
+  const pageX = e.touches ? e.touches[0].pageX : e.pageX;
+  const pageY = e.touches ? e.touches[0].pageY : e.pageY;
+
+  const left = pageX - offsetX - canvasContainer.offsetLeft;
+  const top = pageY - offsetY - canvasContainer.offsetTop;
+
+  // Constrain to canvas
+  const canvasWidth = canvas.offsetWidth;
+  const canvasHeight = canvas.offsetHeight;
+  const textWidth = div.offsetWidth;
+  const textHeight = div.offsetHeight;
+
+  const clampedLeft = Math.max(0, Math.min(left, canvasWidth - textWidth));
+  const clampedTop = Math.max(0, Math.min(top, canvasHeight - textHeight));
+
+  div.style.left = `${clampedLeft}px`;
+  div.style.top = `${clampedTop}px`;
+}
 
       function stopDrag() {
         isDragging = false;
