@@ -138,16 +138,17 @@
     xInput.addEventListener('input', syncSliders);
     yInput.addEventListener('input', syncSliders);
 
-    const renderPage = async (num) => {
-      const page = await renderedPages[num - 1];
-      const viewport = page.getViewport({ scale: 1.5 });
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
+   const renderScale = 1.5; // Global constant to use everywhere
 
-      await page.render({ canvasContext: ctx, viewport }).promise;
-      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-    };
+const renderPage = async (num) => {
+  const page = await renderedPages[num - 1];
+  const viewport = page.getViewport({ scale: renderScale });
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
 
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+};
     document.getElementById('prev-page').onclick = () => {
       if (currentPage > 1) {
         currentPage--;
@@ -217,11 +218,10 @@
       textControls.style.display = 'none';
     };
 
-    document.getElementById('save-pdf').onclick = async () => {
+  document.getElementById('save-pdf').onclick = async () => {
   if (!pdfDoc) return;
 
-  const canvasWidth = canvas.width;
-  const canvasHeight = canvas.height;
+ // const renderScale = 1.5; // same scale used for rendering the canvas
 
   for (const item of placedTexts) {
     const page = pdfDoc.getPages()[item.page - 1];
@@ -229,20 +229,25 @@
 
     const [r, g, b] = item.color.match(/\d+/g).map(n => parseInt(n) / 255);
 
-    // Scale positions
-    const scaledX = (item.x / canvasWidth) * pdfWidth;
-    const scaledY = (item.y / canvasHeight) * pdfHeight;
-
-    // Flip Y for PDF coordinates (origin is bottom-left)
-    const flippedY = pdfHeight - scaledY;
+    // Convert screen (canvas) coords to PDF units
+    const pdfX = item.x / renderScale;
+    const pdfY = pdfHeight - (item.y / renderScale); // flip Y
 
     page.drawText(item.text, {
-      x: scaledX,
-      y: flippedY,
+      x: pdfX,
+      y: pdfY,
       size: 18,
       color: rgb(r, g, b)
     });
   }
+
+  const modifiedBytes = await pdfDoc.save();
+  const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'edited.pdf';
+  link.click();
+};
 
   const modifiedBytes = await pdfDoc.save();
   const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
