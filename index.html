@@ -138,7 +138,7 @@
     xInput.addEventListener('input', syncSliders);
     yInput.addEventListener('input', syncSliders);
 
-   const renderScale = 1.5; // Global constant to use everywhere
+const renderScale = 1.5;
 
 const renderPage = async (num) => {
   const page = await renderedPages[num - 1];
@@ -149,6 +149,18 @@ const renderPage = async (num) => {
   await page.render({ canvasContext: ctx, viewport }).promise;
   pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
 };
+
+function updatePosition() {
+  if (!overlay) return;
+  const x = parseInt(xSlider.value);
+  const y = parseInt(ySlider.value);
+  const scaledX = x * renderScale;
+  const scaledY = (canvas.height - y * renderScale); // Flip for display
+  overlay.style.left = `${scaledX}px`;
+  overlay.style.top = `${scaledY}px`;
+  xInput.value = x;
+  yInput.value = y;
+}
     document.getElementById('prev-page').onclick = () => {
       if (currentPage > 1) {
         currentPage--;
@@ -221,33 +233,21 @@ const renderPage = async (num) => {
   document.getElementById('save-pdf').onclick = async () => {
   if (!pdfDoc) return;
 
- // const renderScale = 1.5; // same scale used for rendering the canvas
-
   for (const item of placedTexts) {
     const page = pdfDoc.getPages()[item.page - 1];
     const { width: pdfWidth, height: pdfHeight } = page.getSize();
-
     const [r, g, b] = item.color.match(/\d+/g).map(n => parseInt(n) / 255);
 
-    // Convert screen (canvas) coords to PDF units
-    const pdfX = item.x / renderScale;
-    const pdfY = pdfHeight - (item.y / renderScale); // flip Y
+    const x = item.x;
+    const y = item.y;
 
     page.drawText(item.text, {
-      x: pdfX,
-      y: pdfY,
+      x,
+      y: pdfHeight - y, // Flip y
       size: 18,
       color: rgb(r, g, b)
     });
   }
-
-  const modifiedBytes = await pdfDoc.save();
-  const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'edited.pdf';
-  link.click();
-};
 
   const modifiedBytes = await pdfDoc.save();
   const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
