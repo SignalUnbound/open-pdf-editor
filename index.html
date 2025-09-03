@@ -37,19 +37,19 @@
     }
     button:hover {
       background-color: #333;
-     }
-.text-overlay {
-  position: absolute;
-  font-size: 18px;
-  cursor: move;
-  user-select: none;
-  padding: 2px 4px;
-  white-space: nowrap;
-   }
-#canvas-container {
-  position: relative;
-  display: inline-block;
-   }
+    }
+    .text-overlay {
+      position: absolute;
+      font-size: 18px;
+      cursor: move;
+      user-select: none;
+      padding: 2px 4px;
+      white-space: nowrap;
+    }
+    #canvas-container {
+      position: relative;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
@@ -65,22 +65,22 @@
   <button id="jump-page">Jump</button>
   <br>
   <input type="color" id="text-color" value="#ff4444">
-<button id="add-text">✏️ Add Text</button>
+  <button id="add-text">✏️ Add Text</button>
   <button id="save-pdf">💾 Save PDF</button>
 
   <p style="font-size: 0.9em; color: #888;">
-  If the file opens instead of downloading, tap the share icon and choose "Save to Files".
-</p>
-  
+    If the file opens instead of downloading, tap the share icon and choose "Save to Files".
+  </p>
+
   <div id="canvas-container">
-  <canvas id="pdf-canvas"></canvas>
-</div>
+    <canvas id="pdf-canvas"></canvas>
+  </div>
 
   <!-- pdf.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <!-- pdf-lib -->
   <script type="module">
-    import { PDFDocument, rgb, StandardFonts } from 'https://cdn.skypack.dev/pdf-lib';
+    import { PDFDocument, rgb } from 'https://cdn.skypack.dev/pdf-lib';
 
     let pdfDoc = null;
     let pdfBytes = null;
@@ -94,6 +94,8 @@
     const ctx = canvas.getContext('2d');
     const pageInfo = document.getElementById('page-info');
     const pageNumberInput = document.getElementById('page-number');
+    const canvasContainer = document.getElementById('canvas-container');
+    const overlayTextElements = [];
 
     const renderPage = async (num) => {
       const page = await renderedPages[num - 1];
@@ -136,10 +138,8 @@
       if (!file) return;
       pdfBytes = await file.arrayBuffer();
 
-      // Load for editing
       originalPdfDoc = await PDFDocument.load(pdfBytes);
 
-      // Load for rendering
       const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
       const pdf = await loadingTask.promise;
 
@@ -154,26 +154,87 @@
       renderPage(currentPage);
     };
 
-    document.getElementById('add-text').onclick = async () => {
-      const text = prompt('Enter text:');
-      if (!text) return;
+    function createDraggableText(input, color = "#ff4444") {
+      const div = document.createElement('div');
+      div.textContent = input;
+      div.className = 'text-overlay';
+      div.style.color = color;
+      div.style.left = '50px';
+      div.style.top = '50px';
 
-      const page = originalPdfDoc.getPages()[currentPage - 1];
-      const { width, height } = page.getSize();
+      canvasContainer.appendChild(div);
+      overlayTextElements.push(div);
 
-      // Default position near top-left (can adjust later)
-      page.drawText(text, {
-        x: 50,
-        y: height - 100,
-        size: 18,
-        color: rgb(1, 0.2, 0.2),
-      });
+      let isDragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
 
-      alert('Text added to PDF (not visible on screen, but will be in saved file)');
+      div.addEventListener('touchstart', startDrag);
+      div.addEventListener('mousedown', startDrag);
+
+      function startDrag(e) {
+        isDragging = true;
+        const rect = div.getBoundingClientRect();
+        const pageX = e.touches ? e.touches[0].pageX : e.pageX;
+        const pageY = e.touches ? e.touches[0].pageY : e.pageY;
+        offsetX = pageX - rect.left;
+        offsetY = pageY - rect.top;
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDrag);
+        document.addEventListener('touchmove', drag);
+        document.addEventListener('touchend', stopDrag);
+      }
+
+      function drag(e) {
+        if (!isDragging) return;
+        const pageX = e.touches ? e.touches[0].pageX : e.pageX;
+        const pageY = e.touches ? e.touches[0].pageY : e.pageY;
+        const left = pageX - offsetX - canvasContainer.offsetLeft;
+        const top = pageY - offsetY - canvasContainer.offsetTop;
+        div.style.left = `${left}px`;
+        div.style.top = `${top}px`;
+      }
+
+      function stopDrag() {
+        isDragging = false;
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', stopDrag);
+        document.removeEventListener('touchmove', drag);
+        document.removeEventListener('touchend', stopDrag);
+      }
+    }
+
+    document.getElementById('add-text').onclick = () => {
+      const input = prompt("Enter text:");
+      if (!input) return;
+      const color = document.getElementById('text-color').value;
+      createDraggableText(input, color);
     };
 
     document.getElementById('save-pdf').onclick = async () => {
       if (!originalPdfDoc) return;
+
+      const page = originalPdfDoc.getPages()[currentPage - 1];
+      const canvasBox = canvas.getBoundingClientRect();
+
+      for (const div of overlayTextElements) {
+        const { left, top } = div.getBoundingClientRect();
+        const text = div.textContent;
+        const color = window.getComputedStyle(div).color;
+
+        const [r, g, b] = color.match(/\d+/g).map(n => parseInt(n) / 255);
+
+        const x = left - canvasBox.left;
+        const y = canvasBox.height - (top - canvasBox.top) - 18;
+
+        page.drawText(text, {
+          x,
+          y,
+          size: 18,
+          color: rgb(r, g, b),
+        });
+      }
 
       const modifiedBytes = await originalPdfDoc.save();
       const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
