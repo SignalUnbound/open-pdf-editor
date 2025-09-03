@@ -218,23 +218,37 @@
       const page = originalPdfDoc.getPages()[currentPage - 1];
       const canvasBox = canvas.getBoundingClientRect();
 
-      for (const div of overlayTextElements) {
-        const { left, top } = div.getBoundingClientRect();
-        const text = div.textContent;
-        const color = window.getComputedStyle(div).color;
+      const page = originalPdfDoc.getPages()[currentPage - 1];
+const { width: pdfWidth, height: pdfHeight } = page.getSize();
+const canvasBox = canvas.getBoundingClientRect();
 
-        const [r, g, b] = color.match(/\d+/g).map(n => parseInt(n) / 255);
+for (const div of overlayTextElements) {
+  const divBox = div.getBoundingClientRect();
+  const text = div.textContent;
+  const color = window.getComputedStyle(div).color;
 
-        const x = left - canvasBox.left;
-        const y = canvasBox.height - (top - canvasBox.top) - 18;
+  // Convert color
+  const [r, g, b] = color.match(/\d+/g).map(n => parseInt(n) / 255);
 
-        page.drawText(text, {
-          x,
-          y,
-          size: 18,
-          color: rgb(r, g, b),
-        });
-      }
+  // Get canvas position
+  const offsetX = divBox.left - canvasBox.left;
+  const offsetY = divBox.top - canvasBox.top;
+
+  // Calculate scaling
+  const scaleX = pdfWidth / canvas.width;
+  const scaleY = pdfHeight / canvas.height;
+
+  // Convert to PDF coordinates
+  const x = offsetX * scaleX;
+  const y = pdfHeight - (offsetY * scaleY) - 18; // adjust for baseline
+
+  page.drawText(text, {
+    x,
+    y,
+    size: 18,
+    color: rgb(r, g, b),
+  });
+}
 
       const modifiedBytes = await originalPdfDoc.save();
       const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
