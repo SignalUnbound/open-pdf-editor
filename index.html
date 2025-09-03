@@ -39,7 +39,6 @@
     .text-overlay {
       position: absolute;
       font-size: 18px;
-      cursor: default;
       user-select: none;
       padding: 2px 4px;
       white-space: nowrap;
@@ -50,6 +49,7 @@
       display: inline-block;
     }
     #text-controls {
+      display: none;
       margin-top: 1em;
     }
     #text-controls input[type="range"] {
@@ -76,10 +76,10 @@
 
   <div id="canvas-container">
     <canvas id="pdf-canvas" width="600" height="800"></canvas>
-    <div id="overlay-text" class="text-overlay" style="left: 50px; top: 100px;">Your Text</div>
   </div>
 
   <div id="text-controls">
+    <div id="overlay-container"></div>
     <label for="text-x">X:</label>
     <input type="range" id="text-x" min="0" max="600" value="50">
     <input type="number" id="text-x-val" min="0" max="600" value="50">
@@ -87,6 +87,8 @@
     <label for="text-y">Y:</label>
     <input type="range" id="text-y" min="0" max="800" value="100">
     <input type="number" id="text-y-val" min="0" max="800" value="100">
+    <br>
+    <button id="confirm-text">✅ Confirm Text</button>
   </div>
 
   <!-- pdf.js -->
@@ -100,22 +102,27 @@
     let currentPage = 1;
     let totalPages = 0;
     let renderedPages = [];
+    const placedTexts = [];
 
     const fileInput = document.getElementById('file-input');
     const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
     const pageInfo = document.getElementById('page-info');
-    const overlay = document.getElementById('overlay-text');
     const xSlider = document.getElementById('text-x');
     const ySlider = document.getElementById('text-y');
     const xInput = document.getElementById('text-x-val');
     const yInput = document.getElementById('text-y-val');
+    const textControls = document.getElementById('text-controls');
+    const overlayContainer = document.getElementById('overlay-container');
+
+    let overlay = null;
 
     function updatePosition() {
+      if (!overlay) return;
       const x = parseInt(xSlider.value);
       const y = parseInt(ySlider.value);
       overlay.style.left = x + 'px';
-      overlay.style.top = (800 - y) + 'px';
+      overlay.style.top = (800 - y) + 'px'; // Flip for screen display
       xInput.value = x;
       yInput.value = y;
     }
@@ -130,7 +137,6 @@
     ySlider.addEventListener('input', updatePosition);
     xInput.addEventListener('input', syncSliders);
     yInput.addEventListener('input', syncSliders);
-    updatePosition();
 
     const renderPage = async (num) => {
       const page = await renderedPages[num - 1];
@@ -138,11 +144,7 @@
       canvas.width = viewport.width;
       canvas.height = viewport.height;
 
-      await page.render({
-        canvasContext: ctx,
-        viewport: viewport
-      }).promise;
-
+      await page.render({ canvasContext: ctx, viewport }).promise;
       pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
     };
 
@@ -171,7 +173,6 @@
 
       totalPages = pdf.numPages;
       renderedPages = [];
-
       for (let i = 1; i <= totalPages; i++) {
         renderedPages.push(await pdf.getPage(i));
       }
@@ -181,29 +182,59 @@
     };
 
     document.getElementById('add-text').onclick = () => {
-      const text = prompt('Enter your text:');
-      if (!text) return;
-      overlay.textContent = text;
+      const input = prompt("Enter your text:");
+      if (!input) return;
+
+      overlay = document.createElement('div');
+      overlay.className = 'text-overlay';
+      overlay.textContent = input;
       overlay.style.color = document.getElementById('text-color').value;
+      overlay.style.left = '50px';
+      overlay.style.top = '700px'; // Initial Y flipped
+      overlayContainer.innerHTML = ''; // Clear previous
+      overlayContainer.appendChild(overlay);
+
+      textControls.style.display = 'block';
+      updatePosition();
     };
 
-    document.getElementById('save-pdf').onclick = async () => {
-      if (!pdfDoc) return;
-      const page = pdfDoc.getPages()[currentPage - 1];
-      const { width: pdfWidth, height: pdfHeight } = page.getSize();
-
+    document.getElementById('confirm-text').onclick = () => {
+      if (!overlay) return;
       const x = parseInt(xSlider.value);
       const y = parseInt(ySlider.value);
       const text = overlay.textContent;
       const color = window.getComputedStyle(overlay).color;
-      const [r, g, b] = color.match(/\\d+/g).map(n => parseInt(n) / 255);
 
-      page.drawText(text, {
-        x: x,
-        y: y,
-        size: 18,
-        color: rgb(r, g, b),
-      });
+      placedTexts.push({ page: currentPage, x, y, text, color });
+
+      // Lock this overlay visually
+      const confirmedOverlay = overlay.cloneNode(true);
+      document.getElementById('canvas-container').appendChild(confirmedOverlay);
+
+      // Reset
+      overlay = null;
+      overlayContainer.innerHTML = '';
+      textControls.style.display = 'none';
+    };
+
+    document.getElementById('save-pdf').onclick = async () => {
+      if (!pdfDoc) return;
+
+      for (const item of placedTexts) {
+        const page = pdfDoc.getPages()[item.page - 1];
+        const { width: pdfWidth, height: pdfHeight } = page.getSize();
+
+        const [r, g, b] = item.color.match(/\d+/g).map(n => parseInt(n) / 255);
+        const x = item.x;
+        const y = item.y;
+
+        page.drawText(item.text, {
+          x,
+          y,
+          size: 18,
+          color: rgb(r, g, b)
+        });
+      }
 
       const modifiedBytes = await pdfDoc.save();
       const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
