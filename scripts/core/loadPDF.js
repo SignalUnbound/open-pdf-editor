@@ -1,24 +1,19 @@
-// scripts/core/loadPDF.js
-
 import { state } from '../state.js';
 import { renderPage } from './renderPDF.js';
 
-// Load and parse the PDF file when selected
 document.getElementById('file-input').addEventListener('change', async (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  // Load PDF bytes into memory
   state.pdfBytes = await file.arrayBuffer();
 
-  // Load the PDF with pdf-lib for editing
-  state.pdfDoc = await PDFLib.PDFDocument.load(state.pdfBytes);
+  // Load with PDF-Lib (editing)
+  state.pdfDoc = await window.PDFLib.PDFDocument.load(state.pdfBytes);
 
-  // Load the PDF with pdf.js for rendering
+  // Load with PDF.js (rendering)
   const loadingTask = pdfjsLib.getDocument({ data: state.pdfBytes });
   const pdf = await loadingTask.promise;
 
-  // Store pages for rendering
   state.totalPages = pdf.numPages;
   state.renderedPages = [];
 
@@ -27,8 +22,6 @@ document.getElementById('file-input').addEventListener('change', async (event) =
     state.renderedPages.push(page);
   }
 
-  // Start with the first page
   state.currentPage = 1;
   renderPage(state.currentPage);
-  console.log('Total rendered pages:', state.renderedPages.length);
 });
