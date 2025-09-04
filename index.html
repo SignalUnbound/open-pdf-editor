@@ -117,14 +117,6 @@
 
     let overlay = null;
 
-    function updatePosition() {
-      if (!overlay) return;
-      const x = parseInt(xSlider.value);
-      const y = parseInt(ySlider.value);
-      overlay.style.left = x + 'px';
-      overlay.style.top = (800 - y) + 'px'; // Flip for screen display
-      xInput.value = x;
-      yInput.value = y;
     }
 
     function syncSliders() {
