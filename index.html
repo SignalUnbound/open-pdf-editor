@@ -8,124 +8,32 @@
   <!-- Orbitron Font -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
 
-  <!-- Main Styles -->
-  <link rel="stylesheet" href="styles/main.css" />
-
-  <style>
-    body {
-      background-color: #111;
-      color: #ccc;
-      font-family: 'Orbitron', sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    h1 {
-      font-size: 1.8em;
-      margin: 1rem 0;
-      color: #eee;
-    }
-
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      background-color: #1a1a1a;
-      padding: 1em;
-      gap: 0.5em;
-      border-top: 1px solid #333;
-      border-bottom: 1px solid #333;
-    }
-
-    button, input[type="color"], input[type="file"] {
-      background: #222;
-      color: #eee;
-      border: 1px solid #555;
-      padding: 0.5em 1em;
-      font-size: 1em;
-      border-radius: 5px;
-      font-family: 'Orbitron', sans-serif;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #333;
-    }
-
-    #canvas-container {
-      display: flex;
-      justify-content: center;
-      padding: 1em;
-    }
-
-    #pdf-canvas {
-      border: 1px solid #444;
-      background: #222;
-      max-width: 100%;
-      height: auto;
-    }
-
-    p {
-      font-size: 0.8em;
-      color: #777;
-      margin: 1rem 0;
-    }
-
-    @media (max-width: 600px) {
-      .toolbar {
-        flex-direction: column;
-      }
-      button, input[type="file"], input[type="color"] {
-        width: 90%;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <h1>Signal:Unbound PDF Editor</h1>
-
-  <!-- 🔼 Top Controls -->
-  <div id="top-controls" class="toolbar">
-    <input type="file" id="file-input" accept="application/pdf" />
-    <button id="prev-page">⬅️ Prev</button>
-    <span id="page-info">Page 1 of ?</span>
-    <button id="next-page">Next ➡️</button>
-    <button id="save-pdf">💾 Save PDF</button>
-  </div>
-
-  <!-- 🖼️ Canvas Container -->
-  <div id="canvas-container">
-    <canvas id="pdf-canvas" width="600" height="800"></canvas>
-  </div>
-
-  <!-- 🔽 Bottom Controls -->
-  <div id="bottom-controls" class="toolbar">
-    <input type="color" id="text-color" value="#ff4444" />
-    <button id="add-text">✏️ Add Text</button>
-    <button id="add-image">🖼️ Add Image</button>
-    <button id="add-page">➕ Add Page</button>
-    <button id="delete-page">🗑️ Delete Page</button>
-  </div>
-
-  <!-- 📜 Debug Note -->
-  <p>
-    If the file opens instead of downloading, tap the share icon and choose "Save to Files".
-  </p>
-
-  <!-- ✅ SCRIPTS AT BOTTOM ✅ -->
-  <!-- Load PDF.js -->
+  <!-- PDF.js for rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
-  <!-- Make PDFLib globally available -->
+  <!-- PDF-Lib for editing -->
   <script type="module">
     import * as PDFLib from 'https://cdn.skypack.dev/pdf-lib';
     window.PDFLib = PDFLib;
   </script>
 
-  <!-- Load main logic -->
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <h1>Signal:Unbound PDF Editor</h1>
+
+  <div class="toolbar">
+    <input type="file" id="file-input" accept="application/pdf" />
+    <button id="prev-page">⬅️ Prev</button>
+    <span id="page-info">Page 1 of ?</span>
+    <button id="next-page">Next ➡️</button>
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="pdf-canvas" width="600" height="800"></canvas>
+  </div>
+
   <script type="module" src="scripts/main.js"></script>
 </body>
 </html>
