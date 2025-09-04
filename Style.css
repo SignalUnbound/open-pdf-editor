@@ -1,0 +1,50 @@
+body {
+  background-color: #111;
+  color: #eee;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  padding: 1em;
+}
+h1 {
+  font-size: 1.5em;
+  margin-bottom: 1em;
+}
+#pdf-canvas {
+  border: 1px solid #444;
+  background: #222;
+  max-width: 100%;
+}
+input, button {
+  margin: 0.5em;
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  border: none;
+  font-size: 1em;
+}
+button {
+  background-color: #222;
+  color: #eee;
+  border: 1px solid #555;
+}
+button:hover {
+  background-color: #333;
+}
+.text-overlay {
+  position: absolute;
+  font-size: 18px;
+  user-select: none;
+  padding: 2px 4px;
+  white-space: nowrap;
+  color: #0ff;
+}
+#canvas-container {
+  position: relative;
+  display: inline-block;
+}
+#text-controls {
+  display: none;
+  margin-top: 1em;
+}
+#text-controls input[type="range"] {
+  width: 300px;
+}
