@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signal:Unbound PDF Editor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Signal:Unbound PDF Editor</h1>
+
+  <input type="file" id="file-input" accept="application/pdf" />
+  <br />
+  <button id="prev-page">⬅️ Prev</button>
+  <span id="page-info">Page 1</span>
+  <button id="next-page">Next ➡️</button>
+  <br />
+  <input type="color" id="text-color" value="#ff4444" />
+  <button id="add-text">✏️ Add Text</button>
+  <button id="save-pdf">💾 Save PDF</button>
+
+  <p style="font-size: 0.9em; color: #888;">
+    If the file opens instead of downloading, tap the share icon and choose "Save to Files".
+  </p>
+
+  <div id="canvas-container">
+    <canvas id="pdf-canvas" width="600" height="800"></canvas>
+    <div id="overlay-container"></div>
+  </div>
+
+  <div id="text-controls">
+    <label for="text-x">X:</label>
+    <input type="range" id="text-x" min="0" max="600" value="50" />
+    <input type="number" id="text-x-val" min="0" max="600" value="50" />
+    <br />
+    <label for="text-y">Y:</label>
+    <input type="range" id="text-y" min="0" max="800" value="100" />
+    <input type="number" id="text-y-val" min="0" max="800" value="100" />
+    <br />
+    <button id="confirm-text">✅ Confirm Text</button>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script type="module" src="editor.js"></script>
+</body>
+</html>
