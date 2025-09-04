@@ -30,4 +30,5 @@ document.getElementById('file-input').addEventListener('change', async (event) =
   // Start with the first page
   state.currentPage = 1;
   renderPage(state.currentPage);
+  console.log('Total rendered pages:', state.renderedPages.length);
 });
