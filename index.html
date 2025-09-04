@@ -3,10 +3,6 @@
 <!-- PDF.js for rendering -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
-<!-- PDF-Lib for editing -->
-<script type="module">
-  import * as PDFLib from 'https://cdn.skypack.dev/pdf-lib';
-  window.PDFLib = PDFLib;
 </script>
   <head>
   <meta charset="UTF-8" />
@@ -89,6 +85,10 @@
       }
     }
   </style>
+    <!-- PDF-Lib for editing -->
+<script type="module">
+  import * as PDFLib from 'https://cdn.skypack.dev/pdf-lib';
+  window.PDFLib = PDFLib;
 </head>
 <body>
   <h1>Signal:Unbound PDF Editor</h1>
