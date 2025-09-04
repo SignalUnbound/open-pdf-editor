@@ -3,21 +3,22 @@
 import { state } from '../state.js';
 import { renderPage } from './renderPDF.js';
 
-// Load and parse the PDF file
+// Load and parse the PDF file when selected
 document.getElementById('file-input').addEventListener('change', async (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  // Load the file into memory
+  // Load PDF bytes into memory
   state.pdfBytes = await file.arrayBuffer();
 
-  // Load pdf-lib version for editing
+  // Load the PDF with pdf-lib for editing
   state.pdfDoc = await PDFLib.PDFDocument.load(state.pdfBytes);
 
-  // Load pdf.js version for rendering
+  // Load the PDF with pdf.js for rendering
   const loadingTask = pdfjsLib.getDocument({ data: state.pdfBytes });
   const pdf = await loadingTask.promise;
 
+  // Store pages for rendering
   state.totalPages = pdf.numPages;
   state.renderedPages = [];
 
@@ -26,6 +27,7 @@ document.getElementById('file-input').addEventListener('change', async (event) =
     state.renderedPages.push(page);
   }
 
+  // Start with the first page
   state.currentPage = 1;
   renderPage(state.currentPage);
 });
