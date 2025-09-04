@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- PDF.js for rendering -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-
-</script>
-  <head>
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Signal:Unbound PDF Editor</title>
@@ -14,6 +10,7 @@
 
   <!-- Main Styles -->
   <link rel="stylesheet" href="styles/main.css" />
+
   <style>
     body {
       background-color: #111;
@@ -85,11 +82,8 @@
       }
     }
   </style>
-    <!-- PDF-Lib for editing -->
-<script type="module">
-  import * as PDFLib from 'https://cdn.skypack.dev/pdf-lib';
-  window.PDFLib = PDFLib;
 </head>
+
 <body>
   <h1>Signal:Unbound PDF Editor</h1>
 
@@ -121,7 +115,17 @@
     If the file opens instead of downloading, tap the share icon and choose "Save to Files".
   </p>
 
-  <!-- 📦 Main Logic -->
+  <!-- ✅ SCRIPTS AT BOTTOM ✅ -->
+  <!-- Load PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
+  <!-- Make PDFLib globally available -->
+  <script type="module">
+    import * as PDFLib from 'https://cdn.skypack.dev/pdf-lib';
+    window.PDFLib = PDFLib;
+  </script>
+
+  <!-- Load main logic -->
   <script type="module" src="scripts/main.js"></script>
 </body>
 </html>
