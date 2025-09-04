@@ -91,9 +91,16 @@
     <button id="confirm-text">✅ Confirm Text</button>
   </div>
 
-  <!-- pdf.js -->
+  <!-- PDF.js Core -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <!-- pdf-lib -->
+
+  <!-- ✅ PDF.js Worker Setup (Fixes the broken rendering) -->
+  <script>
+    window.pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+  </script>
+
+  <!-- PDF-lib and App Logic -->
   <script type="module">
     import { PDFDocument, rgb } from 'https://cdn.skypack.dev/pdf-lib';
 
@@ -103,7 +110,6 @@
     let totalPages = 0;
     let renderedPages = [];
     const placedTexts = [];
-    const renderScale = 1.5;
 
     const fileInput = document.getElementById('file-input');
     const canvas = document.getElementById('pdf-canvas');
@@ -117,13 +123,14 @@
     const overlayContainer = document.getElementById('overlay-container');
 
     let overlay = null;
+    const renderScale = 1.5;
 
     function updatePosition() {
       if (!overlay) return;
       const x = parseInt(xSlider.value);
       const y = parseInt(ySlider.value);
       const scaledX = x * renderScale;
-      const scaledY = canvas.height - y * renderScale; // flip Y
+      const scaledY = canvas.height - (y * renderScale); // Flip Y
       overlay.style.left = `${scaledX}px`;
       overlay.style.top = `${scaledY}px`;
       xInput.value = x;
@@ -149,9 +156,6 @@
 
       await page.render({ canvasContext: ctx, viewport }).promise;
       pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-
-      // Redraw overlays (future improvement: match per-page overlays)
-      updatePosition();
     };
 
     document.getElementById('prev-page').onclick = () => {
@@ -195,9 +199,8 @@
       overlay.className = 'text-overlay';
       overlay.textContent = input;
       overlay.style.color = document.getElementById('text-color').value;
-      overlayContainer.innerHTML = ''; // Clear previous
+      overlayContainer.innerHTML = '';
       overlayContainer.appendChild(overlay);
-
       textControls.style.display = 'block';
       updatePosition();
     };
@@ -227,12 +230,13 @@
         const { width: pdfWidth, height: pdfHeight } = page.getSize();
         const [r, g, b] = item.color.match(/\d+/g).map(n => parseInt(n) / 255);
 
-        const x = item.x;
-        const y = item.y;
+        // Scale canvas coords to PDF space
+        const pdfX = item.x;
+        const pdfY = pdfHeight - item.y;
 
         page.drawText(item.text, {
-          x: x,
-          y: pdfHeight - y,
+          x: pdfX,
+          y: pdfY,
           size: 18,
           color: rgb(r, g, b)
         });
