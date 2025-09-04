@@ -1,5 +1,3 @@
-// scripts/core/renderPDF.js
-
 import { state } from '../state.js';
 
 export async function renderPage(pageNum) {
